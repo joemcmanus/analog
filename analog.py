@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # File    : analog.py 
 # Author  : Joe McManus josephmc@alumni.cmu.edu
-# Version : 0.1  12/20/2015
+# Version : 0.2  12/21/2015
 # Copyright (C) 2015 Joe McManus
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,9 +28,9 @@ from prettytable import PrettyTable
 parser = argparse.ArgumentParser(description='Analog Pin Value Reader for Galileo')
 parser.add_argument('pinNumber', help="Specify the analog pin number, i.e. 0-5", type=int)
 parser.add_argument('--temperature', help="Change to a temperature value for TMP36", action="store_true")
-parser.add_argument('--version', action='version',version='%(prog)s 0.1')
+parser.add_argument('--count', help="Number of times to execute, default infinity", default=0, type=int, action="store")
+parser.add_argument('--version', action='version',version='%(prog)s 0.2')
 args=parser.parse_args()
-
 
 try: 
 	#Initialize the MRAA pin
@@ -40,8 +40,8 @@ try:
 except Exception,e:
 	print("Error: {:s}". format(e))
 	sys.exit()
-
-while 1: 
+i = 0
+while True:
 	try:
 		table = PrettyTable(["Data Type", "Value"])
 		rawReading = pin.read()
@@ -75,9 +75,14 @@ while 1:
 
 		table.add_row(["Time", time.strftime("%Y/%m/%d %H:%M:%S")])
 		print(table)
+		print("")
+
+		if args.count != 0:
+			i = i+1
+			if args.count == i:
+				break
 
 		time.sleep(10)
-		print("")
 
 	except KeyboardInterrupt:
 		sys.exit()
