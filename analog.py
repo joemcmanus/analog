@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # File    : analog.py 
 # Author  : Joe McManus josephmc@alumni.cmu.edu
-# Version : 0.2  12/21/2015
+# Version : 0.3  01/04/2016
 # Copyright (C) 2015 Joe McManus
 #
 # This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@ import time
 import subprocess
 import argparse
 from prettytable import PrettyTable
+import re
 
 parser = argparse.ArgumentParser(description='Analog Pin Value Reader for Galileo')
 parser.add_argument('pinNumber', help="Specify the analog pin number, i.e. 0-5", type=int)
@@ -32,10 +33,27 @@ parser.add_argument('--count', help="Number of times to execute, default infinit
 parser.add_argument('--version', action='version',version='%(prog)s 0.2')
 args=parser.parse_args()
 
+
+
+def checkAnalogPin():
+	#First lets check to see if the 22K pull up resister is set on Pin 0 
+	#See bug report: https://github.com/intel-iot-devkit/mraa/issues/390
+	fixGpio=subprocess.check_output(['/bin/cat', '/sys/kernel/debug/gpio'], stderr=subprocess.STDOUT)
+	gpio49=re.search(r'gpio-49.*', fixGpio)                                                          
+	if hasattr(gpio49, 'group'):                                                                     
+		status=str(gpio49.group(0)).split()                                                      
+		#If it is set to in exit
+		if status[3] == "in":
+			return
+		else:
+			print("Pull up resister set to hi, attempting to change.")
+			fh=open("/sys/class/gpio/gpio49/direction", "w")
+			fh.write('in')
+			fh.close()
 try: 
 	#Initialize the MRAA pin
 	pin = mraa.Aio(int(args.pinNumber)) 
-	#Set it to a 12 bit value, change to 10 for Galileo gen1
+	#Set it to a 12 bit value
 	pin.setBit(12)
 except Exception,e:
 	print("Error: {:s}". format(e))
@@ -44,6 +62,11 @@ i = 0
 while True:
 	try:
 		table = PrettyTable(["Data Type", "Value"])
+
+		#Analog 0 defaults to high and output, check for this
+		if args.pinNumber == 0:
+			checkAnalogPin()
+			
 		rawReading = pin.read()
 		table.add_row(["Raw MRAA Reading", rawReading])
 		
