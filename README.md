@@ -21,7 +21,7 @@ This imports the MRAA library and converts the reading to volts. As a sanity che
       --version      show program's version number and exit
 
 
-This example shows reading 3.3v output from the Arduino style headers back to A0. 
+This example shows reading an analog sensor (TMP36) on A0. 
 
     root@galileo:~# ./analog.py 0
     +---------------------------+---------------------+
