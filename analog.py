@@ -30,12 +30,11 @@ parser = argparse.ArgumentParser(description='Analog Pin Value Reader for Galile
 parser.add_argument('pinNumber', help="Specify the analog pin number, i.e. 0-5", type=int)
 parser.add_argument('--temperature', help="Change to a temperature value for TMP36", action="store_true")
 parser.add_argument('--count', help="Number of times to execute, default infinity", default=0, type=int, action="store")
-parser.add_argument('--version', action='version',version='%(prog)s 0.2')
+parser.add_argument('--delay', help="Number of seconds to wait between readings, default 10", default=10, type=int, action="store")
+parser.add_argument('--version', action='version',version='%(prog)s 0.3')
 args=parser.parse_args()
 
-
-
-def checkAnalogPin():
+def checkAnalogPin(pin):
 	#First lets check to see if the 22K pull up resister is set on Pin 0 
 	#See bug report: https://github.com/intel-iot-devkit/mraa/issues/390
 	fixGpio=subprocess.check_output(['/bin/cat', '/sys/kernel/debug/gpio'], stderr=subprocess.STDOUT)
@@ -50,6 +49,15 @@ def checkAnalogPin():
 			fh=open("/sys/class/gpio/gpio49/direction", "w")
 			fh.write('in')
 			fh.close()
+			#For some reason it does not update until you read, so lets read
+			pin.read()
+
+	fixGpio=subprocess.check_output(['/bin/cat', '/sys/kernel/debug/gpio'], stderr=subprocess.STDOUT)
+	gpio49=re.search(r'gpio-49.*', fixGpio)                                                          
+	if hasattr(gpio49, 'group'):                                                                     
+		status=str(gpio49.group(0)).split()                                                      
+		if status[3] == "out":
+			print("Still showing as output, this will cause bad readings.")
 try: 
 	#Initialize the MRAA pin
 	pin = mraa.Aio(int(args.pinNumber)) 
@@ -58,6 +66,7 @@ try:
 except Exception,e:
 	print("Error: {:s}". format(e))
 	sys.exit()
+
 i = 0
 while True:
 	try:
@@ -65,7 +74,7 @@ while True:
 
 		#Analog 0 defaults to high and output, check for this
 		if args.pinNumber == 0:
-			checkAnalogPin()
+			checkAnalogPin(pin)
 			
 		rawReading = pin.read()
 		table.add_row(["Raw MRAA Reading", rawReading])
@@ -74,7 +83,7 @@ while True:
 		#The reading is from 0-4095 to cover 0-5 volts
 		#Or 4095/5=819.0
 		galVoltage=float(rawReading / 819.0)
-		table.add_row(["MRAA Voltage Calc", round(galVoltage, 4)])
+		table.add_row(["MRAA Voltage Calc", round(galVoltage, 3)])
 
 		#Access the raw voltage reading
 		path="/sys/bus/iio/devices/iio:device0/in_voltage" + str(args.pinNumber) + "_raw"
@@ -87,7 +96,7 @@ while True:
 		sysScale=float(sysScale.strip())	
 		table.add_row(["/sys/bus/iio scale", round(sysScale, 4)])
 
-		table.add_row(["sys/bus/iio MV calculated ", round(float(sysRaw) * sysScale)])
+		table.add_row(["sys/bus/iio Voltage Calc ", round((float(sysRaw) * sysScale / 1000),3 )])
 
 		if args.temperature:
 			tempC= (galVoltage *100 ) - 50 
@@ -105,7 +114,7 @@ while True:
 			if args.count == i:
 				break
 
-		time.sleep(10)
+		time.sleep(args.delay)
 
 	except KeyboardInterrupt:
 		sys.exit()
