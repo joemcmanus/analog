@@ -87,12 +87,12 @@ Then you must install PIP.
 
 Install PrettyTable
 
-   pip install PrettyTable
+    pip install PrettyTable
 
 Download the script and make it executable. 
 
-   curl https://raw.githubusercontent.com/joemcmanus/analog/master/analog.py -o analog.py
-   chmod 755 analog.py
+    curl https://raw.githubusercontent.com/joemcmanus/analog/master/analog.py -o analog.py
+    chmod 755 analog.py
 
 
 
