@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # File    : analog.py 
 # Author  : Joe McManus josephmc@alumni.cmu.edu
-# Version : 0.4  01/04/2016
+# Version : 0.5  02/22/2016
 # Copyright (C) 2015 Joe McManus
 #
 # This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ parser.add_argument('--temperature', help="Change to a temperature value for TMP
 parser.add_argument('--count', help="Number of times to execute, default infinity", default=0, type=int, action="store")
 parser.add_argument('--delay', help="Number of seconds to wait between readings, default 10", default=10, type=int, action="store")
 parser.add_argument('--quiet', help="Quiet display, show only the voltage of the analog pin", action="store_true")
-parser.add_argument('--version', action='version',version='%(prog)s 0.4')
+parser.add_argument('--version', action='version',version='%(prog)s 0.5')
 args=parser.parse_args()
 
 def checkAnalogPin(pin):
@@ -108,7 +108,10 @@ while True:
 
 		table.add_row(["Time", time.strftime("%Y/%m/%d %H:%M:%S")])
 		if args.quiet:
-			print(round(galVoltage, 3))
+			if args.temperature:
+				print(round(tempF, 2))
+			else:
+				print(round(galVoltage, 3))
 		else: 
 			print(table)
 			print("")
