@@ -73,3 +73,27 @@ To only display the voltage of A1 and exit.
     root@galileo2:~# ./analog.py 1 --quiet --count=1
     0.694
 
+There is a prerequisite of installing the module PrettyTable. If you have not installed PIP, follow these instructions.
+
+    curl https://bootstrap.pypa.io/ez_setup.py -o ez_seetup.py
+    python ez_setup.py --insecure
+    
+Then you must install PIP.
+
+    curl  https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz -o pip-8.0.2.tar.gz
+    tar -zxvf pip-8.0.2.tar.gz
+    cd pip-8.0.2
+    python setup.py build install
+
+Install PrettyTable
+
+    pip install PrettyTable
+
+Download the script and make it executable. 
+
+    curl https://raw.githubusercontent.com/joemcmanus/analog/master/analog.py -o analog.py
+    chmod 755 analog.py
+
+
+
+   
