@@ -96,7 +96,7 @@ Download the script and make it executable.
 
 
 Wiring the TMP36
-![alt tag](https://raw.githubusercontent.com/joemcmanus/lcd/master/GalileoGen2-TMP36_bb.png)
+![alt tag](https://raw.githubusercontent.com/joemcmanus/analog/master/GalileoGen2-TMP36_bb.png)
 
 
    
