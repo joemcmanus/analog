@@ -95,5 +95,8 @@ Download the script and make it executable.
     chmod 755 analog.py
 
 
+Wiring the TMP36
+![alt tag](https://raw.githubusercontent.com/joemcmanus/lcd/master/GalileoGen2-TMP36_bb.png)
+
 
    
